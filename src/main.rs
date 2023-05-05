@@ -51,6 +51,15 @@ fn main() {
         if input_string.trim().starts_with("a") {
             let new_name = input_string.trim_start_matches("a").trim().to_string();
 
+            if new_name.trim().is_empty() {
+                print!("\x1B[2J\x1B[1;1H");
+                println!("Current Names:");
+                loop_over_aray(&names);
+                print_instructions();
+                println!("Please enter a valid name.");
+                continue;
+            }
+
             push_name_to_array(&mut names, new_name);
             save_to_file(&names, file_path).unwrap();
             print!("\x1B[2J\x1B[1;1H");
@@ -148,7 +157,7 @@ fn choose_name(names: &Vec<String>, time_ms: u64, choose: bool) {
 
 fn print_instructions() {
     println!(
-        "Type s to shuffle, x to quit, c to choose, a <new_name> to add name, d <number> to delete name."
+        "Type s to shuffle, c to choose, a <new_name> to add name, d <number> to delete name, x to quit."
     );
 }
 
