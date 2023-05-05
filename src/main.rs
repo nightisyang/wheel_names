@@ -41,6 +41,7 @@ fn main() {
             print_instructions();
         }
 
+        // choose name
         if input_string.trim() == "c" {
             choose_name(&mut names, 50, false);
             choose_name(&mut names, 80, false);
@@ -48,9 +49,11 @@ fn main() {
             choose_name(&mut names, 250, true);
         }
 
+        // add name
         if input_string.trim().starts_with("a") {
             let new_name = input_string.trim_start_matches("a").trim().to_string();
 
+            // handle error if no name provided
             if new_name.trim().is_empty() {
                 print!("\x1B[2J\x1B[1;1H");
                 println!("Current Names:");
@@ -60,6 +63,7 @@ fn main() {
                 continue;
             }
 
+            // if valid name provided, push to array, save line and display array with new element
             push_name_to_array(&mut names, new_name);
             save_to_file(&names, file_path).unwrap();
             print!("\x1B[2J\x1B[1;1H");
@@ -68,10 +72,12 @@ fn main() {
             print_instructions();
         }
 
+        // delete name based on user
         if input_string.trim().starts_with("d") {
             let index: String = input_string.trim_start_matches("d").trim().to_string();
             let parsed_index: usize;
 
+            // match if parsed value is integer usize, handle error if not
             match index.parse::<usize>() {
                 Ok(number) => {
                     println!("Parsed number: {}", number);
@@ -88,6 +94,7 @@ fn main() {
                 }
             }
 
+            // handle error if more the array length
             if parsed_index > names.len() {
                 print!("\x1B[2J\x1B[1;1H");
                 println!("Current Names:");
@@ -106,6 +113,7 @@ fn main() {
         }
     }
 
+    // when while loop terminates, show farewell msg
     println!("Goodbye!")
 }
 
@@ -135,9 +143,12 @@ fn choose_name(names: &Vec<String>, time_ms: u64, choose: bool) {
     let mut rng = rand::thread_rng();
     let chosen_index: usize = rng.gen_range(0..names.len());
 
+    // first loop determines the fps
     for i in 0..names.len() {
         print!("\x1B[2J\x1B[1;1H");
         println!("Choosing name...");
+
+        // second nested loop handles the display of the arrow and the entire list
         for (index, name) in names.iter().enumerate() {
             if index == i {
                 println!("{}. {} ⬅", index + 1, name);
@@ -146,6 +157,7 @@ fn choose_name(names: &Vec<String>, time_ms: u64, choose: bool) {
             }
         }
 
+        // when it is time to choose, show name from vector and return
         if choose && i == chosen_index {
             println!("Congratulation {}!", names[chosen_index]);
             print_instructions();
@@ -173,7 +185,7 @@ fn push_name_to_array(names: &mut Vec<String>, new_name: String) {
 }
 
 fn remove_index(names: &mut Vec<String>, index: usize) {
-    names.remove(index - 1);
+    names.remove(index - 1); //index is actually length
 }
 
 fn save_to_file(names: &Vec<String>, file_path: &str) -> std::io::Result<()> {
