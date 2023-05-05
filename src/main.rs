@@ -1,10 +1,20 @@
-use std::{ fs, io };
+use std::{ fs, io, env };
 use rand::Rng;
 use std::thread;
 use std::time::Duration;
 
 fn main() {
-    let content = fs::read_to_string("names.txt").unwrap_or_default();
+    // Get the path to the current executable
+    let exe_path = env::current_exe().expect("Failed to get current executable path");
+
+    // Get the directory containing the executable
+    let exe_dir = exe_path.parent().expect("Failed to get directory of current executable");
+
+    // Construct the path to `names.txt` in the same directory as the executable
+    let names_path = exe_dir.join("names.txt");
+
+    let content = fs::read_to_string(names_path).unwrap_or_default();
+
     let mut names: Vec<String> = content
         .lines()
         .map(|line| line.to_string())
