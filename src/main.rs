@@ -78,21 +78,22 @@ fn main() {
                     parsed_index = number;
                 }
                 Err(e) => {
-                    eprintln!("Error parsing number: {}", e);
                     print!("\x1B[2J\x1B[1;1H");
+                    eprintln!("Error parsing number: {}", e);
+                    println!("Current Names:");
                     loop_over_aray(&names);
-                    println!("To remove name, <number> must be between 0 and {}", names.len());
                     print_instructions();
+                    println!("To remove name, <number> must be between 0 and {}", names.len());
                     continue;
                 }
             }
 
             if parsed_index > names.len() {
                 print!("\x1B[2J\x1B[1;1H");
-                println!("Invalid Number");
+                println!("Current Names:");
                 loop_over_aray(&names);
-                println!("To remove name, <number> must be between 0 and {}", names.len());
                 print_instructions();
+                println!("To remove name, <number> must be between 0 and {}", names.len());
                 continue;
             }
 
