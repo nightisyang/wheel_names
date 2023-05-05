@@ -23,6 +23,8 @@ fn main() {
         .map(|line| line.to_string())
         .collect();
 
+    let file_path = &names_path.to_str().expect("Failed to convert Path to str");
+
     print!("\x1B[2J\x1B[1;1H");
     println!("Original sequence:");
     loop_over_aray(&names);
@@ -48,9 +50,44 @@ fn main() {
 
         if input_string.trim().starts_with("a") {
             let new_name = input_string.trim_start_matches("a").trim().to_string();
-            let file_path = &names_path.to_str().expect("Failed to convert Path to str");
 
             push_name_to_array(&mut names, new_name);
+            save_to_file(&names, file_path).unwrap();
+            print!("\x1B[2J\x1B[1;1H");
+            println!("Current Names:");
+            loop_over_aray(&names);
+            print_instructions();
+        }
+
+        if input_string.trim().starts_with("d") {
+            let index: String = input_string.trim_start_matches("d").trim().to_string();
+            let parsed_index: usize;
+
+            match index.parse::<usize>() {
+                Ok(number) => {
+                    println!("Parsed number: {}", number);
+                    parsed_index = number;
+                }
+                Err(e) => {
+                    eprintln!("Error parsing number: {}", e);
+                    print!("\x1B[2J\x1B[1;1H");
+                    loop_over_aray(&names);
+                    println!("To remove name, <number> must be between 0 and {}", names.len());
+                    print_instructions();
+                    continue;
+                }
+            }
+
+            if parsed_index > names.len() {
+                print!("\x1B[2J\x1B[1;1H");
+                println!("Invalid Number");
+                loop_over_aray(&names);
+                println!("To remove name, <number> must be between 0 and {}", names.len());
+                print_instructions();
+                continue;
+            }
+
+            remove_index(&mut names, parsed_index);
             save_to_file(&names, file_path).unwrap();
             print!("\x1B[2J\x1B[1;1H");
             println!("Current Names:");
@@ -110,7 +147,9 @@ fn choose_name(names: &Vec<String>, time_ms: u64, choose: bool) {
 }
 
 fn print_instructions() {
-    println!("Type s to shuffle, x to quit, c to choose, a <new_name> to add name");
+    println!(
+        "Type s to shuffle, x to quit, c to choose, a <new_name> to add name, d <number> to delete name."
+    );
 }
 
 fn loop_over_aray(names: &Vec<String>) {
@@ -121,6 +160,10 @@ fn loop_over_aray(names: &Vec<String>) {
 
 fn push_name_to_array(names: &mut Vec<String>, new_name: String) {
     names.push(new_name)
+}
+
+fn remove_index(names: &mut Vec<String>, index: usize) {
+    names.remove(index - 1);
 }
 
 fn save_to_file(names: &Vec<String>, file_path: &str) -> std::io::Result<()> {
