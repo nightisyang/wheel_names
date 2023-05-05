@@ -17,6 +17,7 @@ fn main() {
 
     let mut names: Vec<String> = content
         .lines()
+        .filter(|line| !line.trim().is_empty()) // Filter out empty lines or lines with only whitespace
         .map(|line| line.to_string())
         .collect();
 
@@ -53,7 +54,7 @@ fn main() {
 }
 
 fn shuffle_names(names: &mut Vec<String>, array_len: usize) {
-    //         // This will clear the screen and put the cursor at first row & first col of the screen.
+    // This will clear the screen and put the cursor at first row & first col of the screen.
     print!("\x1B[2J\x1B[1;1H");
 
     for i in 0..array_len {
