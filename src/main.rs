@@ -1,16 +1,22 @@
-use std::fs::File;
-use std::io::Write;
-use std::{ fs, io, env };
+use crossterm::{
+    cursor, execute,
+    terminal::{Clear, ClearType},
+};
 use rand::Rng;
+use std::fs::File;
+use std::io::{stdout, Write};
 use std::thread;
 use std::time::Duration;
+use std::{env, fs, io};
 
 fn main() {
     // Get the path to the current executable
     let exe_path = env::current_exe().expect("Failed to get current executable path");
 
     // Get the directory containing the executable
-    let exe_dir = exe_path.parent().expect("Failed to get directory of current executable");
+    let exe_dir = exe_path
+        .parent()
+        .expect("Failed to get directory of current executable");
 
     // Construct the path to `names.txt` in the same directory as the executable
     let names_path = exe_dir.join("names.txt");
@@ -25,7 +31,7 @@ fn main() {
 
     let file_path = &names_path.to_str().expect("Failed to convert Path to str");
 
-    print!("\x1B[2J\x1B[1;1H");
+    clear_terminal();
     println!("Original sequence:");
     loop_over_aray(&names);
     print_instructions();
@@ -55,7 +61,7 @@ fn main() {
 
             // handle error if no name provided
             if new_name.trim().is_empty() {
-                print!("\x1B[2J\x1B[1;1H");
+                clear_terminal();
                 println!("Current Names:");
                 loop_over_aray(&names);
                 print_instructions();
@@ -66,7 +72,7 @@ fn main() {
             // if valid name provided, push to array, save line and display array with new element
             push_name_to_array(&mut names, new_name);
             save_to_file(&names, file_path).unwrap();
-            print!("\x1B[2J\x1B[1;1H");
+            clear_terminal();
             println!("Current Names:");
             loop_over_aray(&names);
             print_instructions();
@@ -84,29 +90,35 @@ fn main() {
                     parsed_index = number;
                 }
                 Err(e) => {
-                    print!("\x1B[2J\x1B[1;1H");
+                    clear_terminal();
                     eprintln!("Error parsing number: {}", e);
                     println!("Current Names:");
                     loop_over_aray(&names);
                     print_instructions();
-                    println!("To remove name, <number> must be between 0 and {}", names.len());
+                    println!(
+                        "To remove name, <number> must be between 0 and {}",
+                        names.len()
+                    );
                     continue;
                 }
             }
 
             // handle error if more the array length
             if parsed_index > names.len() {
-                print!("\x1B[2J\x1B[1;1H");
+                clear_terminal();
                 println!("Current Names:");
                 loop_over_aray(&names);
                 print_instructions();
-                println!("To remove name, <number> must be between 0 and {}", names.len());
+                println!(
+                    "To remove name, <number> must be between 0 and {}",
+                    names.len()
+                );
                 continue;
             }
 
             remove_index(&mut names, parsed_index);
             save_to_file(&names, file_path).unwrap();
-            print!("\x1B[2J\x1B[1;1H");
+            clear_terminal();
             println!("Current Names:");
             loop_over_aray(&names);
             print_instructions();
@@ -119,7 +131,7 @@ fn main() {
 
 fn shuffle_names(names: &mut Vec<String>) {
     // This will clear the screen and put the cursor at first row & first col of the screen.
-    print!("\x1B[2J\x1B[1;1H");
+    clear_terminal();
 
     for i in 0..names.len() {
         let mut rng = rand::thread_rng();
@@ -145,7 +157,7 @@ fn choose_name(names: &Vec<String>, time_ms: u64, choose: bool) {
 
     // first loop determines the fps
     for i in 0..names.len() {
-        print!("\x1B[2J\x1B[1;1H");
+        clear_terminal();
         println!("Choosing name...");
 
         // second nested loop handles the display of the arrow and the entire list
@@ -196,4 +208,9 @@ fn save_to_file(names: &Vec<String>, file_path: &str) -> std::io::Result<()> {
     }
 
     Ok(())
+}
+
+fn clear_terminal() {
+    let mut stdout = stdout();
+    execute!(stdout, Clear(ClearType::All), cursor::MoveTo(0, 0)).expect("Error clearing terminal");
 }
